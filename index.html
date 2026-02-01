@@ -1,1 +1,49 @@
-hi
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serve Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-900 text-white p-6 flex flex-col items-center">
+  <h1 class="text-2xl font-bold mb-8">Serve Tracker</h1>
+  
+  <div class="w-full max-w-sm space-y-4">
+    <button onclick="add('first')" class="w-full py-8 text-2xl font-semibold bg-green-600 hover:bg-green-500 active:bg-green-700 rounded-2xl">
+      1st Serve <span id="first" class="text-3xl ml-2">0</span>
+    </button>
+
+    <button onclick="add('second')" class="w-full py-8 text-2xl font-semibold bg-yellow-600 hover:bg-yellow-500 active:bg-yellow-700 rounded-2xl">
+      2nd Serve <span id="second" class="text-3xl ml-2">0</span>
+    </button>
+
+    <button onclick="add('double')" class="w-full py-8 text-2xl font-semibold bg-red-600 hover:bg-red-500 active:bg-red-700 rounded-2xl">
+      Double Fault <span id="double" class="text-3xl ml-2">0</span>
+    </button>
+  </div>
+
+  <p id="stats" class="mt-8 text-lg text-gray-400">Total: 0 | 1st Serve %: 0%</p>
+
+  <button onclick="reset()" class="mt-6 px-8 py-3 text-lg bg-gray-700 hover:bg-gray-600 rounded-xl">Reset</button>
+
+  <script>
+    let c = {first: 0, second: 0, double: 0};
+    function add(t) {
+      c[t]++;
+      document.getElementById(t).textContent = c[t];
+      update();
+    }
+    function update() {
+      let total = c.first + c.second + c.double;
+      let pct = total > 0 ? Math.round(c.first / total * 100) : 0;
+      document.getElementById('stats').textContent = `Total: ${total} | 1st Serve %: ${pct}%`;
+    }
+    function reset() {
+      c = {first: 0, second: 0, double: 0};
+      ['first','second','double'].forEach(t => document.getElementById(t).textContent = '0');
+      update();
+    }
+  </script>
+</body>
+</html>
