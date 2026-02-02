@@ -29,14 +29,17 @@
     </button>
   </div>
 
-  <div class="mt-6 flex items-center gap-3 bg-red-900/50 px-5 py-3 rounded-xl">
-    <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="10" stroke-width="2"/>
-      <line x1="8" y1="8" x2="16" y2="16" stroke-width="2"/>
-      <line x1="16" y1="8" x2="8" y2="16" stroke-width="2"/>
-    </svg>
-    <span class="text-lg text-red-300">Double Faults:</span>
-    <span id="dfTotal" class="text-2xl font-bold text-red-400">0</span>
+  <div class="mt-6 flex flex-col items-center gap-2 bg-red-900/50 px-5 py-3 rounded-xl">
+    <div class="flex items-center gap-3">
+      <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" stroke-width="2"/>
+        <line x1="8" y1="8" x2="16" y2="16" stroke-width="2"/>
+        <line x1="16" y1="8" x2="8" y2="16" stroke-width="2"/>
+      </svg>
+      <span class="text-lg text-red-300">Double Faults:</span>
+      <span id="dfTotal" class="text-2xl font-bold text-red-400">0</span>
+    </div>
+    <div id="dfBySet" class="text-sm text-red-300/70"></div>
   </div>
 
   <p id="setStats" class="mt-4 text-lg text-gray-400">Set: 0 serves | 0%</p>
@@ -76,7 +79,7 @@
       
       let setTotal = s.first + s.second + s.double;
       let setPct = setTotal > 0 ? Math.round(s.first / setTotal * 100) : 0;
-      document.getElementById('setLabel').textContent = `Set ${currentSet + 1} (${setTotal})`;
+      document.getElementById('setLabel').textContent = `Set ${currentSet + 1}`;
       document.getElementById('setStats').textContent = `Set: ${setTotal} serves | ${setPct}%`;
       
       let t = {first:0, second:0, double:0};
@@ -85,6 +88,9 @@
       let totalPct = total > 0 ? Math.round(t.first / total * 100) : 0;
       document.getElementById('totalStats').textContent = `Total: ${total} serves | ${totalPct}%`;
       document.getElementById('dfTotal').textContent = t.double;
+      
+      let dfBySet = getAllSets().map((s, i) => `S${i+1}: ${s.double}`).join(' | ');
+      document.getElementById('dfBySet').textContent = dfBySet;
     }
     
     function add(t) {
