@@ -2,53 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Serve Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; user-select: none; }
+    button:active { transform: scale(0.97); }
+    .btn-serve { transition: transform 0.1s, box-shadow 0.1s; }
+    .btn-serve:active { box-shadow: inset 0 4px 12px rgba(0,0,0,0.3); }
+  </style>
 </head>
-<body class="min-h-screen bg-gray-900 text-white p-6 flex flex-col items-center">
-  <h1 class="text-2xl font-bold mb-4">Serve Tracker</h1>
+<body class="min-h-screen bg-gradient-to-b from-gray-900 to-gray-950 text-white p-4 flex flex-col items-center">
   
-  <div class="flex gap-2 mb-6">
-    <button onclick="prevSet()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-xl">←</button>
-    <span id="setLabel" class="px-6 py-2 bg-gray-800 rounded-lg text-xl font-semibold">Set 1</span>
-    <button onclick="nextSet()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-xl">→</button>
-  </div>
-  
-  <div class="w-full max-w-sm space-y-4">
-    <button onclick="add('first')" class="w-full py-8 text-2xl font-semibold bg-green-600 hover:bg-green-500 active:bg-green-700 rounded-2xl">
-      1st Serve <span id="first" class="text-3xl ml-2">0</span>
-    </button>
-
-    <button onclick="add('second')" class="w-full py-8 text-2xl font-semibold bg-yellow-600 hover:bg-yellow-500 active:bg-yellow-700 rounded-2xl">
-      2nd Serve <span id="second" class="text-3xl ml-2">0</span>
-    </button>
-
-    <button onclick="add('double')" class="w-full py-8 text-2xl font-semibold bg-red-600 hover:bg-red-500 active:bg-red-700 rounded-2xl">
-      Double Fault <span id="double" class="text-3xl ml-2">0</span>
-    </button>
+  <!-- Header -->
+  <div class="w-full max-w-md flex items-center justify-between mb-4">
+    <h1 class="text-xl font-bold tracking-wide">🎾 Serve Tracker</h1>
+    <button onclick="undo()" id="undoBtn" class="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 rounded-lg opacity-50 pointer-events-none">↩ Undo</button>
   </div>
 
-  <div class="mt-6 flex items-center gap-3 bg-red-900/50 px-5 py-3 rounded-xl">
-    <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <!-- Set Selector -->
+  <div class="flex items-center gap-3 mb-5">
+    <button onclick="prevSet()" class="w-12 h-12 text-2xl bg-gray-800 hover:bg-gray-700 active:bg-gray-600 rounded-xl shadow-lg">←</button>
+    <div id="setLabel" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl text-xl font-bold shadow-lg min-w-[120px] text-center">Set 1</div>
+    <button onclick="nextSet()" class="w-12 h-12 text-2xl bg-gray-800 hover:bg-gray-700 active:bg-gray-600 rounded-xl shadow-lg">→</button>
+  </div>
+  
+  <!-- Serve Buttons -->
+  <div class="w-full max-w-md space-y-3">
+    <button onclick="add('first')" class="btn-serve w-full py-7 text-xl font-bold bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 rounded-2xl shadow-lg flex items-center justify-between px-6">
+      <span>1st Serve In</span>
+      <span id="first" class="text-4xl tabular-nums">0</span>
+    </button>
+
+    <button onclick="add('second')" class="btn-serve w-full py-7 text-xl font-bold bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 rounded-2xl shadow-lg flex items-center justify-between px-6">
+      <span>2nd Serve In</span>
+      <span id="second" class="text-4xl tabular-nums">0</span>
+    </button>
+
+    <button onclick="add('double')" class="btn-serve w-full py-7 text-xl font-bold bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 rounded-2xl shadow-lg flex items-center justify-between px-6">
+      <span>Double Fault</span>
+      <span id="double" class="text-4xl tabular-nums">0</span>
+    </button>
+  </div>
+
+  <!-- Double Fault Tracker -->
+  <div class="mt-5 flex items-center gap-3 bg-red-950/60 border border-red-800/50 px-5 py-3 rounded-xl">
+    <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="10" stroke-width="2"/>
       <line x1="8" y1="8" x2="16" y2="16" stroke-width="2"/>
       <line x1="16" y1="8" x2="8" y2="16" stroke-width="2"/>
     </svg>
-    <span class="text-lg text-red-300">Double Faults:</span>
-    <span id="dfTotal" class="text-2xl font-bold text-red-400">0</span>
+    <span class="text-red-300">Total DFs:</span>
+    <span id="dfTotal" class="text-2xl font-bold text-red-400 tabular-nums">0</span>
   </div>
 
-  <p id="setStats" class="mt-4 text-lg text-gray-400">Set: 0 serves | 0%</p>
-  <p id="totalStats" class="mt-2 text-lg text-white">Total: 0 serves | 0%</p>
+  <!-- Stats Cards -->
+  <div class="w-full max-w-md grid grid-cols-2 gap-3 mt-5">
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 text-center">
+      <div class="text-gray-400 text-sm mb-1" id="setStatsLabel">Set 1</div>
+      <div id="setServes" class="text-2xl font-bold tabular-nums">0</div>
+      <div class="text-sm text-gray-400">serves</div>
+      <div id="setPct" class="text-xl font-bold text-green-400 mt-1 tabular-nums">0%</div>
+      <div class="text-xs text-gray-500">1st serve %</div>
+    </div>
+    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 text-center">
+      <div class="text-gray-400 text-sm mb-1">Match Total</div>
+      <div id="totalServes" class="text-2xl font-bold tabular-nums">0</div>
+      <div class="text-sm text-gray-400">serves</div>
+      <div id="totalPct" class="text-xl font-bold text-green-400 mt-1 tabular-nums">0%</div>
+      <div class="text-xs text-gray-500">1st serve %</div>
+    </div>
+  </div>
 
-  <div class="flex gap-4 mt-6">
-    <button onclick="resetSet()" class="px-6 py-3 text-lg bg-gray-700 hover:bg-gray-600 rounded-xl">Reset Set</button>
-    <button onclick="resetAll()" class="px-6 py-3 text-lg bg-red-800 hover:bg-red-700 rounded-xl">Reset All</button>
+  <!-- Action Buttons -->
+  <div class="flex gap-3 mt-6">
+    <button onclick="resetSet()" class="px-5 py-3 text-sm font-medium bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl">Reset Set</button>
+    <button onclick="resetAll()" class="px-5 py-3 text-sm font-medium bg-red-900/50 hover:bg-red-800/50 border border-red-800/50 text-red-300 rounded-xl">Reset All</button>
   </div>
 
   <script>
     let currentSet = parseInt(localStorage.getItem('serve_currentSet')) || 0;
+    let history = [];
     
     function getSet(i) {
       return JSON.parse(localStorage.getItem(`serve_set_${i}`)) || {first:0, second:0, double:0};
@@ -64,7 +98,12 @@
     
     function getAllSets() {
       let sets = [];
-      for (let i = 0; i <= currentSet; i++) {
+      let maxSet = 0;
+      for (let i = 0; i < 10; i++) {
+        let s = localStorage.getItem(`serve_set_${i}`);
+        if (s) maxSet = i;
+      }
+      for (let i = 0; i <= Math.max(maxSet, currentSet); i++) {
         sets.push(getSet(i));
       }
       return sets;
@@ -73,24 +112,48 @@
     function render() {
       let s = getSet(currentSet);
       ['first','second','double'].forEach(t => document.getElementById(t).textContent = s[t]);
+      document.getElementById('setLabel').textContent = `Set ${currentSet + 1}`;
       
       let setTotal = s.first + s.second + s.double;
       let setPct = setTotal > 0 ? Math.round(s.first / setTotal * 100) : 0;
-      document.getElementById('setLabel').textContent = `Set ${currentSet + 1}`;
-      document.getElementById('setStats').textContent = `Set ${currentSet + 1}: ${setTotal} serves | ${setPct}%`;
+      document.getElementById('setStatsLabel').textContent = `Set ${currentSet + 1}`;
+      document.getElementById('setServes').textContent = setTotal;
+      document.getElementById('setPct').textContent = `${setPct}%`;
       
       let t = {first:0, second:0, double:0};
       getAllSets().forEach(x => { t.first += x.first; t.second += x.second; t.double += x.double; });
       let total = t.first + t.second + t.double;
       let totalPct = total > 0 ? Math.round(t.first / total * 100) : 0;
-      document.getElementById('totalStats').textContent = `Total: ${total} serves | ${totalPct}%`;
+      document.getElementById('totalServes').textContent = total;
+      document.getElementById('totalPct').textContent = `${totalPct}%`;
       document.getElementById('dfTotal').textContent = t.double;
+      
+      // Update undo button
+      let undoBtn = document.getElementById('undoBtn');
+      if (history.length > 0) {
+        undoBtn.classList.remove('opacity-50', 'pointer-events-none');
+      } else {
+        undoBtn.classList.add('opacity-50', 'pointer-events-none');
+      }
     }
     
     function add(t) {
       let s = getSet(currentSet);
+      history.push({set: currentSet, type: t});
+      if (history.length > 20) history.shift();
       s[t]++;
       saveSet(currentSet, s);
+      render();
+    }
+    
+    function undo() {
+      if (history.length === 0) return;
+      let last = history.pop();
+      let s = getSet(last.set);
+      if (s[last.type] > 0) s[last.type]--;
+      saveSet(last.set, s);
+      currentSet = last.set;
+      saveCurrentSet();
       render();
     }
     
@@ -105,15 +168,19 @@
     }
     
     function resetSet() {
+      if (!confirm(`Reset Set ${currentSet + 1}?`)) return;
       saveSet(currentSet, {first:0, second:0, double:0});
+      history = history.filter(h => h.set !== currentSet);
       render();
     }
     
     function resetAll() {
-      for (let i = 0; i <= currentSet; i++) {
+      if (!confirm('Reset all sets?')) return;
+      for (let i = 0; i < 10; i++) {
         localStorage.removeItem(`serve_set_${i}`);
       }
       currentSet = 0;
+      history = [];
       saveCurrentSet();
       render();
     }
