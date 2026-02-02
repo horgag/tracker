@@ -28,22 +28,32 @@
   <button onclick="reset()" class="mt-6 px-8 py-3 text-lg bg-gray-700 hover:bg-gray-600 rounded-xl">Reset</button>
 
   <script>
-    let c = {first: 0, second: 0, double: 0};
-    function add(t) {
-      c[t]++;
-      document.getElementById(t).textContent = c[t];
-      update();
+    let c = JSON.parse(localStorage.getItem('serveData')) || {first: 0, second: 0, double: 0};
+    
+    function save() {
+      localStorage.setItem('serveData', JSON.stringify(c));
     }
-    function update() {
+    
+    function render() {
+      ['first','second','double'].forEach(t => document.getElementById(t).textContent = c[t]);
       let total = c.first + c.second + c.double;
       let pct = total > 0 ? Math.round(c.first / total * 100) : 0;
       document.getElementById('stats').textContent = `Total: ${total} | 1st Serve %: ${pct}%`;
     }
+    
+    function add(t) {
+      c[t]++;
+      save();
+      render();
+    }
+    
     function reset() {
       c = {first: 0, second: 0, double: 0};
-      ['first','second','double'].forEach(t => document.getElementById(t).textContent = '0');
-      update();
+      save();
+      render();
     }
+    
+    render();
   </script>
 </body>
 </html>
