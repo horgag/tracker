@@ -7,7 +7,13 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="min-h-screen bg-gray-900 text-white p-6 flex flex-col items-center">
-  <h1 class="text-2xl font-bold mb-8">Serve Tracker</h1>
+  <h1 class="text-2xl font-bold mb-4">Serve Tracker</h1>
+  
+  <div class="flex gap-2 mb-6">
+    <button onclick="prevSet()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-xl">←</button>
+    <span id="setLabel" class="px-6 py-2 bg-gray-800 rounded-lg text-xl font-semibold">Set 1</span>
+    <button onclick="nextSet()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-xl">→</button>
+  </div>
   
   <div class="w-full max-w-sm space-y-4">
     <button onclick="add('first')" class="w-full py-8 text-2xl font-semibold bg-green-600 hover:bg-green-500 active:bg-green-700 rounded-2xl">
@@ -23,35 +29,52 @@
     </button>
   </div>
 
-  <p id="stats" class="mt-8 text-lg text-gray-400">Total: 0 | 1st Serve %: 0%</p>
+  <p id="setStats" class="mt-6 text-lg text-gray-400">Set: 0 serves | 0%</p>
+  <p id="totalStats" class="mt-2 text-lg text-white">Total: 0 serves | 0%</p>
 
-  <button onclick="reset()" class="mt-6 px-8 py-3 text-lg bg-gray-700 hover:bg-gray-600 rounded-xl">Reset</button>
+  <div class="flex gap-4 mt-6">
+    <button onclick="resetSet()" class="px-6 py-3 text-lg bg-gray-700 hover:bg-gray-600 rounded-xl">Reset Set</button>
+    <button onclick="resetAll()" class="px-6 py-3 text-lg bg-red-800 hover:bg-red-700 rounded-xl">Reset All</button>
+  </div>
 
   <script>
-    let c = JSON.parse(localStorage.getItem('serveData')) || {first: 0, second: 0, double: 0};
+    let data = JSON.parse(localStorage.getItem('serveData2')) || {sets: [{first:0,second:0,double:0}], currentSet: 0};
     
-    function save() {
-      localStorage.setItem('serveData', JSON.stringify(c));
-    }
+    function save() { localStorage.setItem('serveData2', JSON.stringify(data)); }
+    
+    function cur() { return data.sets[data.currentSet]; }
     
     function render() {
-      ['first','second','double'].forEach(t => document.getElementById(t).textContent = c[t]);
-      let total = c.first + c.second + c.double;
-      let pct = total > 0 ? Math.round(c.first / total * 100) : 0;
-      document.getElementById('stats').textContent = `Total: ${total} | 1st Serve %: ${pct}%`;
+      let s = cur();
+      ['first','second','double'].forEach(t => document.getElementById(t).textContent = s[t]);
+      document.getElementById('setLabel').textContent = `Set ${data.currentSet + 1}`;
+      
+      let setTotal = s.first + s.second + s.double;
+      let setPct = setTotal > 0 ? Math.round(s.first / setTotal * 100) : 0;
+      document.getElementById('setStats').textContent = `Set: ${setTotal} serves | ${setPct}%`;
+      
+      let t = {first:0, second:0, double:0};
+      data.sets.forEach(x => { t.first += x.first; t.second += x.second; t.double += x.double; });
+      let total = t.first + t.second + t.double;
+      let totalPct = total > 0 ? Math.round(t.first / total * 100) : 0;
+      document.getElementById('totalStats').textContent = `Total: ${total} serves | ${totalPct}%`;
     }
     
-    function add(t) {
-      c[t]++;
-      save();
-      render();
+    function add(t) { cur()[t]++; save(); render(); }
+    
+    function prevSet() {
+      if (data.currentSet > 0) { data.currentSet--; save(); render(); }
     }
     
-    function reset() {
-      c = {first: 0, second: 0, double: 0};
-      save();
-      render();
+    function nextSet() {
+      data.currentSet++;
+      if (!data.sets[data.currentSet]) data.sets[data.currentSet] = {first:0,second:0,double:0};
+      save(); render();
     }
+    
+    function resetSet() { data.sets[data.currentSet] = {first:0,second:0,double:0}; save(); render(); }
+    
+    function resetAll() { data = {sets: [{first:0,second:0,double:0}], currentSet: 0}; save(); render(); }
     
     render();
   </script>
